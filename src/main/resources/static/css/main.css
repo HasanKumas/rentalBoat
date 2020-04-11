@@ -1,0 +1,18 @@
+#menu {
+  background-image: url(https://cdn.sbcdn.it/fu/newbooking_tmpl/763323_IMG_ASF.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+#marq {
+  font-size: 70px;
+  color: red;
+  font-family: sans-serif, "Helvetica Neue", "Lucida Grande", Arial;
+  font-stretch: expanded;
+  font-weight: bold;
+}
+#formInputBoats {
+  display: none;
+}
+#tableShowBoat {
+  background-color: lightblue;
+}
