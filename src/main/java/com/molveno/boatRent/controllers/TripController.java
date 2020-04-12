@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -34,8 +35,14 @@ public class TripController {
     @PostMapping
     public String startTrip(@RequestParam("suitableBoatNumber") String suitableBoatNumber, @RequestParam("numOfPersons") Integer numOfPersons) {
         Trip trip = new Trip();
-        //suitable boat added to trip
         Boat suitableBoat = boatRepository.findOneByBoatNumberIgnoreCase(suitableBoatNumber);
+
+        //set the price of trip to max of minPrice and actualPrice of Boat
+        if(suitableBoat.getMinPrice() > suitableBoat.getActualPrice()){
+            trip.setPrice(suitableBoat.getMinPrice());
+        }else{
+            trip.setPrice(suitableBoat.getActualPrice());
+        }
         trip.setBoat(suitableBoat);
         LocalDate today = LocalDate.now();
 //        DateTimeFormatter f = DateTimeFormatter.ofPattern("dd-MM-yyyy");
@@ -46,9 +53,25 @@ public class TripController {
         trip.setNumberOfPersons(numOfPersons);
         trip.setStatus("ongoing..");
 
-//        long minutes = startTime.until( endTime, ChronoUnit.MINUTES );
-
         tripRepository.save(trip);
         return "The trip has started..";
+    }
+    @PutMapping("/{id}")
+    public void stopTrip(@PathVariable("id") Long id){
+        Double totalPrice;
+        Trip startedTrip = tripRepository.getOne(id);
+        startedTrip.setStatus("ended");
+        LocalDate startDate = startedTrip.getStartDate();
+        LocalTime startTime = startedTrip.getStartTime();
+        LocalDateTime startDateTime = LocalDateTime.of(startDate, startTime);
+        LocalDate endDate = LocalDate.now();
+        LocalTime endTime = LocalTime.now();
+        LocalDateTime endDateTime = LocalDateTime.of(endDate, endTime);
+        int duration = (int)startDateTime.until( endDateTime, ChronoUnit.MINUTES );
+        startedTrip.setDuration(duration);
+        totalPrice = (startedTrip.getPrice()*duration)/60;
+        startedTrip.setTotalPrice(totalPrice);
+
+        tripRepository.save(startedTrip);
     }
 }
