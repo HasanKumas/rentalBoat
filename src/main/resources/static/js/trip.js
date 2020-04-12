@@ -1,13 +1,9 @@
 var tripTable
 var numberOfPersons
 var tripId
+
 $(document).ready(function () {
     getTrips();
-
-    $("#startTrip").click(openTripDialog);
-    $("#stopTrip").click(stopTrip);
-    $("#setActualPrice").click(setActualPrice);
-    $("#setMinPrice").click(setMinPrice);
 })
 //list all the trips in a data table
 function getTrips() {
@@ -28,11 +24,11 @@ function getTrips() {
                                 'numberOfPersons': json[i].numberOfPersons,
                                 'startDate': json[i].startDate,
                                 'startTime': json[i].startTime,
-                                'duration': json[i].duration,
-                                'price': json[i].price,
+                                'duration': Math.floor(json[i].duration / 60) + " h " + json[i].duration % 60 + " m",
+                                'price': Math.round(json[i].totalPrice).toFixed(2),
                                 'status': json[i].status,
                                 'deleteBtn': "<button class='btn btn-danger deleteButton' tripId=' " + json[i].id + " ' >delete</button>",
-                                'stopBtn': "<button class='btn btn-primary stopBtn' tripId=' " + json[i].id + " '> stop </button>"
+                                'stopBtn': "<button class='btn btn-primary stopBtn' statusCheck=' " +  json[i].status + " ' tripId=' " + json[i].id + " '> stop </button>"
                             });
                         }
                         return return_data;
@@ -55,23 +51,34 @@ function getTrips() {
             {
                 text: "Start a trip",
                 action: function (e, dt, node, config) {
-                    var content = $("#formInputTrips").html();
-                    $("#exampleModal .modal-body").html(content);
-                    $("#exampleModal .modal-title").text("Start Trip");
-                    $("#exampleModal").modal("show");
-                    $("#okDelModalBtn").hide();
-                    $("#startModalBtn").hide();
-                    $("#checkModalBtn").show();
+                    openStartTripDialog();
                 },
+            },
+            {
+                text: "Set Actual Price",
+                action: function (e, dt, node, config) {
+                    openSetActualPriceDialog();
+                }
+            },
+            {
+                text: "Set Minimum Price",
+                action: function (e, dt, node, config) {
+                    openSetMinPriceDialog();
+                }
             }
         ]
     });
-    //receive input from user (number of persons) and checks suitable boat through called method
+
+    /*Start Trip listeners
+    checks suitable boat through called method*/
     $("#checkModalBtn").click(function () {
         checkSuitableBoat();
         $("#okDelModalBtn").hide();
         $("#startModalBtn").show();
         $("#checkModalBtn").hide();
+        $("#stopModalBtn").hide();
+        $("#setActualPriceBtn").hide();
+        $("#setMinPriceBtn").hide();
     });
     //start the trip with the called method inside by setting the current time as starting time
     $("#startModalBtn").click(function () {
@@ -79,6 +86,49 @@ function getTrips() {
         $("#exampleModal").modal("hide");
     });
 
+    //Stop Trip listeners
+    $("#tableShowTrip")
+        .off()
+        .on("click", "button.stopBtn", function () {
+        var s= $(this).attr("statusCheck");
+        if(s.trim() === "ended"){
+            alert("this trip has already ended..")
+        }else {
+            $("#exampleModal").modal("show");
+            $("#exampleModal .modal-body").text("You are about to stop this trip!");
+            $("#exampleModal .modal-title").text("Stop Trip");
+            $("#okDelModalBtn").hide();
+            $("#startModalBtn").hide();
+            $("#checkModalBtn").hide();
+            $("#stopModalBtn").show();
+            $("#setActualPriceBtn").hide();
+            $("#setMinPriceBtn").hide();
+            tripId = $(this).attr("tripId");
+        }
+    });
+
+    //stop the trip with the called method inside by setting the current time as starting time
+    $("#stopModalBtn").click(function () {
+        stopTrip(tripId);
+        $("#exampleModal").modal("hide");
+    });
+
+    //set actual price
+    $("#setActualPriceBtn").click(function () {
+        var actualPrice = $("#actualPriceInput").val();
+        $("#exampleModal").modal("hide");
+        setActualPrice(actualPrice);
+
+    });
+    //set min price
+    $("#setMinPriceBtn").click(function () {
+        var minPrice = $("#minPriceInput").val();
+        $("#exampleModal").modal("hide");
+        setMinPrice(minPrice);
+
+    });
+
+    //delete trip listeners
     $("#tableShowTrip tbody")
         .off()
         .on("click", "button.deleteButton", function () {
@@ -88,33 +138,19 @@ function getTrips() {
             $("#okDelModalBtn").show();
             $("#startModalBtn").hide();
             $("#checkModalBtn").hide();
+            $("#stopModalBtn").hide();
+            $("#setActualPriceBtn").hide();
+            $("#setMinPriceBtn").hide();
             tripId = $(this).attr("tripId");
         });
+     //confirmation for deletion
     $("#okDelModalBtn").click(function () {
         deleteTrip(tripId);
         $("#exampleModal").modal("hide");
     });
-//
-//    $("#tableShowTrip")
-//        .off()
-//        .on("click", "button.stopBtn", function () {
-//            console.log(tripTable.row($(this).parents("tr")));
-//            var data1 = tripTable.row($(this).parents("tr")).data();
-//
-//            $("#exampleModal").modal("show");
-//            var content = $("#formInputTrips").html();
-//            $("#exampleModal .modal-body").html(content);
-//            $("#exampleModal .modal-title").text("Stop Trip");
-//            $("#okDelModalBtn").hide();
-//            $("#startModalBtn").show();
-//            $("#checkModalBtn").hide();//
-//
-//            tripId = data1.id;
-//        });
-
 }
 //open dialog box for input to start a trip
-function openTripDialog() {
+function openStartTripDialog() {
         var content = $("#formInputTrips").html();
         $("#exampleModal .modal-body").html(content);
         $("#exampleModal .modal-title").text("Start Trip");
@@ -122,6 +158,9 @@ function openTripDialog() {
         $("#okDelModalBtn").hide();
         $("#startModalBtn").hide();
         $("#checkModalBtn").show();
+        $("#stopModalBtn").hide();
+        $("#setActualPriceBtn").hide();
+        $("#setMinPriceBtn").hide();
 }
 //find the suitable boat number
 function checkSuitableBoat() {
@@ -135,8 +174,11 @@ function checkSuitableBoat() {
     $.get('api/boats/suitableBoats?numOfPersons=' +
                                 document.getElementById("numberOfPersonsInput").value, function(result){
                                                     document.getElementById('suitableBoatNumberInput').value = result;
+                                                    if(result == "There is no suitable boat..."){
+                                                        $("#exampleModal").modal("hide");
+                                                        alert("There is no suitable boat...");
+                                                    }
                                 });
-
 
 }
 //the trip starts and starting time set
@@ -155,6 +197,78 @@ function startTrip(numberOfPersons) {
             alert('try again');
         }
     });
+}
+//the trip stops and duration and price are calculated
+function stopTrip(tripId) {
+    $.ajax({
+        url: 'api/trips/' + tripId,
+        type: "PUT",
+        contentType: "application/json",
+        success: function () {
+            alert("The trip has ended ");
+            tripTable.ajax.reload();
+        },
+        error: function () {
+            alert('try again');
+        }
+    });
+}
+
+//open dialog box for input to set actual price
+function openSetActualPriceDialog() {
+        $("#exampleModal").modal("show");
+        var content = $("#formInputActualPrice").html();
+        $("#exampleModal .modal-body").html(content);
+        $("#exampleModal .modal-title").text("Set Actual Price");
+        $("#okDelModalBtn").hide();
+        $("#startModalBtn").hide();
+        $("#checkModalBtn").hide();
+        $("#stopModalBtn").hide();
+        $("#setMinPriceBtn").hide();
+        $("#setActualPriceBtn").show();
+}
+//set actual price
+function setActualPrice(actualPrice){
+    $.ajax({
+            url: 'api/boats/setActualPrice/?actualPrice=' + actualPrice,
+            type: "PUT",
+            contentType: "application/json",
+            success: function () {
+                alert("The actual price has been set to "+ actualPrice);
+                tripTable.ajax.reload();
+            },
+            error: function () {
+                alert('try again');
+            }
+        });
+}
+//open dialog box for input to set min price
+function openSetMinPriceDialog() {
+        $("#exampleModal").modal("show");
+        var content = $("#formInputMinPrice").html();
+        $("#exampleModal .modal-body").html(content);
+        $("#exampleModal .modal-title").text("Set Minimum Price");
+        $("#okDelModalBtn").hide();
+        $("#startModalBtn").hide();
+        $("#checkModalBtn").hide();
+        $("#stopModalBtn").hide();
+        $("#setActualPriceBtn").hide();
+        $("#setMinPriceBtn").show();
+}
+//set minimum price
+function setMinPrice(minPrice){
+    $.ajax({
+            url: 'api/boats/setMinPrice/?minPrice=' + minPrice,
+            type: "PUT",
+            contentType: "application/json",
+            success: function () {
+                alert("The minimum price has been set to "+ minPrice);
+                tripTable.ajax.reload();
+            },
+            error: function () {
+                alert('try again');
+            }
+        });
 }
 
 function deleteTrip(tripId) {

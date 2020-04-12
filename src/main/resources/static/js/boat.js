@@ -139,6 +139,9 @@ function deleteBoat(boatId) {
         success: function () {
             alert("The boat has been deleted!");
             boatTable.ajax.reload();
+        },
+        error: function () {
+            alert("The boat cannot be deleted! Try to delete related trips first!");
         }
     });
 }

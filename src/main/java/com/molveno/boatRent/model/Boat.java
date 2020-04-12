@@ -16,8 +16,8 @@ public class Boat {
     private Long id;
     private  String boatNumber;
     private Integer numberOfSeats;
-    private Integer minPrice;
-    private  Integer actualPrice;
+    private Double minPrice;
+    private  Double actualPrice;
     private String type;
 
     @OneToMany(mappedBy = "boat")
@@ -48,19 +48,19 @@ public class Boat {
         this.numberOfSeats = numberOfSeats;
     }
 
-    public Integer getMinPrice() {
+    public Double getMinPrice() {
         return minPrice;
     }
 
-    public void setMinPrice(Integer minPrice) {
+    public void setMinPrice(Double minPrice) {
         this.minPrice = minPrice;
     }
 
-    public Integer getActualPrice() {
+    public Double getActualPrice() {
         return actualPrice;
     }
 
-    public void setActualPrice(Integer actualPrice) {
+    public void setActualPrice(Double actualPrice) {
         this.actualPrice = actualPrice;
     }
 

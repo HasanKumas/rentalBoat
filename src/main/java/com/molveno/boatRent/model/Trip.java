@@ -17,14 +17,15 @@ public class Trip {
     private Long id;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate startDate;
-    @JsonFormat(pattern = "hh:mm")
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime startTime;
-    @JsonFormat(pattern = "hh:mm")
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime endTime;
     private  Integer numberOfPersons;
     private String status;
     private Integer duration;
-    private Integer price;
+    private Double price;
+    private Double totalPrice;
 
     @ManyToOne
     Boat boat;
@@ -61,12 +62,20 @@ public class Trip {
         this.endTime = endTime;
     }
 
-    public Integer getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(Integer price) {
+    public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public Double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(Double totalPrice) {
+        this.totalPrice = totalPrice;
     }
 
     public Integer getNumberOfPersons() {

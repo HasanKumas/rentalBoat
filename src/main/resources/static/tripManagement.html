@@ -49,6 +49,9 @@
                 <button type="button" class="btn btn-primary" id="okDelModalBtn">OK</button>
                 <button type="button" class="btn btn-primary" id="startModalBtn">Start</button>
                 <button type="button" class="btn btn-primary" id="checkModalBtn">Check</button>
+                <button type="button" class="btn btn-primary" id="stopModalBtn">Stop</button>
+                <button type="button" class="btn btn-primary" id="setActualPriceBtn">Set Actual Price</button>
+                <button type="button" class="btn btn-primary" id="setMinPriceBtn">Set Minimum Price</button>
             </div>
         </div>
     </div>
@@ -87,14 +90,7 @@
         </form>
     </div>
 </nav>
-<div class="container-fluid">
-<div class="btn-group-vertical">
-    <button type="button" class="btn btn-primary" id="startTrip">Start Trip</button>
-    <button type="button" class="btn btn-primary" id="stopTrip">Stop Trip</button>
-    <button type="button" class="btn btn-primary" id="setActualPrice">Set Actual Price</button>
-    <button type="button" class="btn btn-primary" id="setMinPrice">Set Minimum Price</button>
-</div>
-</div><br/>
+<br/>
 <div class="container-fluid">
     <form id="formInputTrips">
         <div class="form-row">
@@ -109,6 +105,29 @@
         </div>
     </form>
 </div>
+<div class="container-fluid">
+    <form id="formInputActualPrice">
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="actualPriceInput">Actual Price</label>
+                <input type="number" class="form-control" id="actualPriceInput">
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<div class="container-fluid">
+    <form id="formInputMinPrice">
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="minPriceInput">Minimum Price</label>
+                <input type="number" class="form-control" id="minPriceInput">
+            </div>
+        </div>
+
+    </form>
+</div>
 
 <div class="container-fluid">
     <table id="tableShowTrip" class="display" style="width:100%">
@@ -116,11 +135,11 @@
         <tr>
             <th>Boat Number</th>
             <th>Boat Type</th>
-            <th>Number of Persons</th>
-            <th>Date</th>
+            <th>Persons(N)</th>
+            <th>Start Date</th>
             <th>Start Time</th>
-            <th>Duration</th>
-            <th>Price</th>
+            <th>Duration (hrs/min)</th>
+            <th>Total Price (€)</th>
             <th>Status</th>
             <th>Action</th>
             <th>Action</th>
@@ -129,39 +148,5 @@
     </table>
 </div>
 
-<!--<div data-role="page" id="mainpage">-->
-
-<!--    <div data-role="header">-->
-<!--        <h1>My Title</h1>-->
-<!--    </div>&lt;!&ndash; /header &ndash;&gt;-->
-
-<!--    <div data-role="content">-->
-<!--        <a href="#popup" data-role="button" onclick="openDialog();" data-rel="dialog" data-transition="flip">Add Movie</a>-->
-<!--        <p>Movies in the database</p>-->
-<!--        <div>-->
-<!--            <ul data-role="listview" data-inset="true" data-filter="true" data-split-theme="b"  data-split-icon="delete" id="listview"></ul>-->
-<!--        </div>-->
-<!--    </div>&lt;!&ndash; /content &ndash;&gt;-->
-
-<!--</div>&lt;!&ndash; /mainpage &ndash;&gt;-->
-<!--&lt;!&ndash; Start Trip Input Popup &ndash;&gt;-->
-<!--<div data-role="dialog" id="popup">-->
-
-<!--    <div data-role="header" data-theme="e">-->
-<!--        <h1>Start Trip</h1>-->
-<!--    </div>-->
-
-<!--    <div data-role="content" data-theme="d">-->
-<!--        <p style="color: red;" id="error"></p>-->
-<!--        <label for="numberOfPersons">Number Of Persons</label>-->
-<!--        <input type="number" data-clear-btn="true" name="numberOfPersons" id="numberOfPersons" value="">-->
-<!--        <label for="suitableBoatNumber">Suitable Boat Number</label>-->
-<!--        <input type="text" data-clear-btn="true" name="suitableBoatNumber" id="suitableBoatNumber" value="" disabled>-->
-<!--        <p><a data-role="button" data-icon="save" id="checkSuitableBoat">Check Suitable Boat</a></p>-->
-<!--        <p><a data-role="button" data-icon="save" id="start">Start Trip</a></p>-->
-<!--        <p><a data-role="button" data-icon="back" id="cancelTrip">Cancel</a></p>-->
-<!--    </div>-->
-
-<!--</div>-->
 </body>
 </html>

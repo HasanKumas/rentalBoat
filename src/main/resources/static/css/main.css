@@ -16,3 +16,12 @@
 #tableShowBoat {
   background-color: lightblue;
 }
+#tableShowTrip {
+  background-color: lightblue;
+}
+#formInputActualPrice{
+   display: none;
+ }
+ #formInputMinPrice{
+   display: none;
+ }
