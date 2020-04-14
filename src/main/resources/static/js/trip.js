@@ -25,7 +25,7 @@ function getTrips() {
                                 'startDate': json[i].startDate,
                                 'startTime': json[i].startTime,
                                 'duration': Math.floor(json[i].duration / 60) + " h " + json[i].duration % 60 + " m",
-                                'price': Math.round(json[i].totalPrice).toFixed(2),
+                                'price': json[i].totalPrice,
                                 'status': json[i].status,
                                 'deleteBtn': "<button class='btn btn-danger deleteButton' tripId=' " + json[i].id + " ' >delete</button>",
                                 'stopBtn': "<button class='btn btn-primary stopBtn' statusCheck=' " +  json[i].status + " ' tripId=' " + json[i].id + " '> stop </button>"
@@ -178,7 +178,7 @@ function checkSuitableBoat() {
                                                         $("#exampleModal").modal("hide");
                                                         alert("There is no suitable boat...");
                                                     }
-                                });
+    });
 
 }
 //the trip starts and starting time set
@@ -240,7 +240,7 @@ function setActualPrice(actualPrice){
             error: function () {
                 alert('try again');
             }
-        });
+    });
 }
 //open dialog box for input to set min price
 function openSetMinPriceDialog() {
@@ -268,7 +268,7 @@ function setMinPrice(minPrice){
             error: function () {
                 alert('try again');
             }
-        });
+    });
 }
 
 function deleteTrip(tripId) {
