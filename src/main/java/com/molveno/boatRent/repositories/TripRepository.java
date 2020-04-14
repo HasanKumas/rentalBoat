@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface TripRepository extends JpaRepository<Trip, Long> {
     List<Trip> findAllByStartDate(LocalDate startDate);
+    List<Trip> findAllByStartDateAndStatus(LocalDate startDate, String status);
 }

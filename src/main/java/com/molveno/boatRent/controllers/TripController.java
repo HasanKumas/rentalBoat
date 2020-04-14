@@ -43,10 +43,9 @@ public class TripController {
         }else{
             trip.setPrice(suitableBoat.getActualPrice());
         }
+        trip.setTotalPrice(0.00);
         trip.setBoat(suitableBoat);
         LocalDate today = LocalDate.now();
-//        DateTimeFormatter f = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//        today.format(f);
         trip.setStartDate(today);
         LocalTime startTime = LocalTime.now();
         trip.setStartTime(startTime);
