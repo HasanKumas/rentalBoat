@@ -6,22 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!--    jquery-->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <!--    data tables-->
-    <script src="//cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
-    <link rel="stylesheet" href="//cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" >
-    <!--    bootsrap-->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-            crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
-    <!--  Data Table  buttons-->
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
-    <script src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
+    <!--    bootsrap-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 
     <!-- Local CSS and JS -->
     <link rel="stylesheet" type="text/css" href="\css\main.css">
@@ -49,18 +39,19 @@
                     Menu<span class="sr-only">(current)</span>
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="boatManagement.html">Boat Management</a>
+                    <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="tripManagement.html">Trip Management</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="boatManagement.html">Boat Management</a>
+                    <a class="dropdown-item" href="guestManagement.html">Guest Management</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="currentDayOverview.html">Current Day Overview</a>
                     <div class="dropdown-divider"></div>
                 </div>
             </li>
-            <form class="form-inline my-2 my-lg-0">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="button" id="tripOverviewBtn">Trip Overview</button>
-                <button class="btn btn-outline-success my-2 my-sm-0" type="button" id="boatOverviewBtn">Boat Usage Overview</button>
-            </form>
+            <li class="nav-item">
+                <a class="nav-link" href="#">About Us</a>
+            </li>
         </ul>
         <form class="form-inline my-2 my-lg-0">
             <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
@@ -70,40 +61,58 @@
 </nav>
 <br/>
 
+<div class="container">
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#tripO">Trip Overview</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#boatO">Boat Usage Overview</a>
+        </li>
+    </ul>
 
-<div class="container-fluid">
-    <table id="tableShowTripOverview" class="display" style="width:100%">
-        <thead>
-        <tr>
-            <th>Trips Ended(N) </th>
-            <th>Trips Ongoing(N)</th>
-            <th>Average Duration(hrs/min)</th>
-            <th>Used Boats(N)</th>
-            <th>Total Income(€)</th>
-        </tr>
-        </thead>
-        <tbody id="tableTripOverviewBody">
+    <div class="tab-content">
+        <div id="tripO" class="container tab-pane active">
+            <h3>Trip Overview for Current Day</h3>
+            <div class="container-fluid">
+                <table id="tableShowTripOverview" class="display" style="width:100%">
+                    <thead>
+                    <tr>
+                        <th>Trips Ended(N) </th>
+                        <th>Trips Ongoing(N)</th>
+                        <th>Average Duration(hrs/min)</th>
+                        <th>Used Boats(N)</th>
+                        <th>Total Income(€)</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tableTripOverviewBody">
 
-        </tbody>
+                    </tbody>
 
-    </table>
-</div>
+                </table>
+            </div>
+        </div>
+        <div id="boatO" class="container tab-pane fade">
+            <h3>Boat Usage Overview for Current Day</h3>
+            <div class="container-fluid">
+                <table id="tableShowBoatOverview" class="display" style="width:100%">
+                    <thead>
+                    <tr>
+                        <th>Boat Number</th>
+                        <th>Seats(N)</th>
+                        <th>Total Time(Ended Trips)</th>
+                        <th>Income(€)</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tableBoatOverviewBody">
 
-<div class="container-fluid">
-    <table id="tableShowBoatOverview" class="display" style="width:100%">
-        <thead>
-        <tr>
-            <th>Boat Number</th>
-            <th>Seats(N)</th>
-            <th>Total Time(Ended Trips)</th>
-            <th>Income(€)</th>
-        </tr>
-        </thead>
-        <tbody id="tableBoatOverviewBody">
+                    </tbody>
 
-        </tbody>
-
-    </table>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>

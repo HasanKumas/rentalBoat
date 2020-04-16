@@ -13,6 +13,9 @@
 #formInputBoats {
   display: none;
 }
+#formInputGuests {
+  display: none;
+}
 #tableShowBoat {
   background-color: lightblue;
 }

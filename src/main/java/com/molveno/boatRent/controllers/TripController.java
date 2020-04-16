@@ -1,8 +1,10 @@
 package com.molveno.boatRent.controllers;
 
 import com.molveno.boatRent.model.Boat;
+import com.molveno.boatRent.model.Guest;
 import com.molveno.boatRent.model.Trip;
 import com.molveno.boatRent.repositories.BoatRepository;
+import com.molveno.boatRent.repositories.GuestRepository;
 import com.molveno.boatRent.repositories.TripRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,8 @@ public class TripController {
     private TripRepository tripRepository;
     @Autowired//connect to database
     private BoatRepository boatRepository;
+    @Autowired//connect to database
+    private GuestRepository guestRepository;
 
     @GetMapping
     public List<Trip> getTrips (){
@@ -33,8 +37,9 @@ public class TripController {
     }
 
     @PostMapping
-    public String startTrip(@RequestParam("suitableBoatNumber") String suitableBoatNumber, @RequestParam("numOfPersons") Integer numOfPersons) {
+    public String startTrip(@RequestParam("suitableBoatNumber") String suitableBoatNumber, @RequestParam("numOfPersons") Integer numOfPersons, @RequestParam("guestId") Long guestId) {
         Trip trip = new Trip();
+        Guest guest = guestRepository.getOne(guestId);
         Boat suitableBoat = boatRepository.findOneByBoatNumberIgnoreCase(suitableBoatNumber);
 
         //set the price of trip to max of minPrice and actualPrice of Boat
@@ -52,11 +57,12 @@ public class TripController {
         trip.setNumberOfPersons(numOfPersons);
         trip.setStatus("ongoing..");
 
+        trip.setGuest(guest);
         tripRepository.save(trip);
         return "The trip has started..";
     }
     @PutMapping("/{id}")
-    public void stopTrip(@PathVariable("id") Long id){
+    public Trip stopTrip(@PathVariable("id") Long id){
         Double totalPrice;
         Trip startedTrip = tripRepository.getOne(id);
         startedTrip.setStatus("ended");
@@ -71,6 +77,6 @@ public class TripController {
         totalPrice = (startedTrip.getPrice()*duration)/60;
         startedTrip.setTotalPrice(totalPrice);
 
-        tripRepository.save(startedTrip);
+        return tripRepository.save(startedTrip);
     }
 }

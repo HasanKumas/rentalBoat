@@ -17,8 +17,8 @@ function getBoats() {
                                 'boatNumber': json[i].boatNumber,
                                 'type': json[i].type,
                                 'numberOfSeats': json[i].numberOfSeats,
-                                'minPrice': json[i].minPrice,
-                                'actualPrice': json[i].actualPrice,
+                                'minPrice': json[i].minPrice.toFixed(2),
+                                'actualPrice': json[i].actualPrice.toFixed(2),
                                 'deleteBtn': "<button class='btn btn-danger deleteButton' boatId=' " + json[i].id + " ' >delete</button>",
                                 'editBtn': "<button class='btn btn-primary editBtn' boatId=' " + json[i].id + " '> edit </button>"
                             });
