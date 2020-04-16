@@ -1,13 +1,6 @@
-package com.molveno.boatRent.model;
+package com.molveno.boatRent.views;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-
-@Entity
-public class BoatOverview {
-    @Id
-    @GeneratedValue
+public class BoatView {
     private Long id;
     private  String boatNumber;
     private Integer numberOfSeats;

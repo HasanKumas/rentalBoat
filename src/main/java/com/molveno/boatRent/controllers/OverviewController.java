@@ -1,11 +1,10 @@
 package com.molveno.boatRent.controllers;
 
 import com.molveno.boatRent.model.Boat;
-import com.molveno.boatRent.model.BoatOverview;
-import com.molveno.boatRent.model.Overview;
+import com.molveno.boatRent.views.BoatView;
+import com.molveno.boatRent.views.TripView;
 import com.molveno.boatRent.model.Trip;
 import com.molveno.boatRent.repositories.BoatRepository;
-import com.molveno.boatRent.repositories.BoatOverviewRepository;
 import com.molveno.boatRent.repositories.TripRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,56 +18,50 @@ import java.util.List;
 @RequestMapping("api/overviews")//end point
 public class OverviewController {
     @Autowired//connect to database
-    private BoatOverviewRepository boatOverviewRepository;
-    @Autowired//connect to database
     private TripRepository tripRepository;
     @Autowired//connect to database
     private BoatRepository boatRepository;
 
     @GetMapping("/boatOverviews")
-    public List<BoatOverview> getBoatUsageOverview () {
-        List<BoatOverview> boatOverviews = new ArrayList<>();
-        //to create one overview empty the repository first
-        boatOverviewRepository.deleteAll();
+    public List<BoatView> getBoatUsageOverview () {
+        List<BoatView> boatViews = new ArrayList<>();
         List<Boat> boats = boatRepository.findAll();
 
         //set a copy of boats to boatOverview with income and totalTime attributes added
         for (int i = 0; i < boats.size(); i++) {
-            boatOverviews.add(new BoatOverview());
+            boatViews.add(new BoatView());
         }
-        for(int i = 0; i < boatOverviews.size(); i++){
-                boatOverviews.get(i).setBoatNumber(boats.get(i).getBoatNumber());
-                boatOverviews.get(i).setNumberOfSeats(boats.get(i).getNumberOfSeats());
+        for(int i = 0; i < boatViews.size(); i++){
+                boatViews.get(i).setBoatNumber(boats.get(i).getBoatNumber());
+                boatViews.get(i).setNumberOfSeats(boats.get(i).getNumberOfSeats());
                 Double income = 0.00;
                 Integer duration = 0;
-                boatOverviews.get(i).setIncome(income);
-                boatOverviews.get(i).setTotalTime(duration);
-                boatOverviewRepository.save(boatOverviews.get(i));
+                boatViews.get(i).setIncome(income);
+                boatViews.get(i).setTotalTime(duration);
         }
         //set the income and totalTime for current day
         LocalDate today = LocalDate.now();
         List<Trip> endedTrips = tripRepository.findAllByStartDateAndStatus(today, "ended");
 
-        for (BoatOverview boatOverview : boatOverviewRepository.findAll()){
+        for (BoatView boatView : boatViews){
             Double income = 0.00;
             Integer duration = 0;
             for(Trip trip : endedTrips) {
-                if(trip.getBoat().getBoatNumber().equals(boatOverview.getBoatNumber())) {
+                if(trip.getBoat().getBoatNumber().equals(boatView.getBoatNumber())) {
                     income += trip.getTotalPrice();
                     duration += trip.getDuration();
-                    boatOverview.setIncome(income);
-                    boatOverview.setTotalTime(duration);
-                    boatOverviewRepository.save(boatOverview);
+                    boatView.setIncome(income);
+                    boatView.setTotalTime(duration);
                 }
             }
         }
-        return boatOverviewRepository.findAll();
+        return boatViews;
     }
 
-    @GetMapping
-    public Overview getTripsOverview (){
+    @GetMapping("/tripOverviews")
+    public TripView getTripsOverview (){
         //no need to create a repository. An Overview instance is enough to return required information
-        Overview overview = new Overview();
+        TripView tripView = new TripView();
         //get the trips for current day according to the status. And collect the required information for overview
         LocalDate today = LocalDate.now();
         List<Trip> ongoingTrips = tripRepository.findAllByStartDateAndStatus(today, "ongoing..");
@@ -84,17 +77,17 @@ public class OverviewController {
             totalPrice += trip.getTotalPrice();
         }
 
-        overview.setNumberOfTripsOngoing(numberOfOngoingTrips);
-        overview.setNumberOfTripsEnded(numberOfEndedTrips);
+        tripView.setNumberOfTripsOngoing(numberOfOngoingTrips);
+        tripView.setNumberOfTripsEnded(numberOfEndedTrips);
         //to avoid (x/0) exception
         if(numberOfEndedTrips > 0) {
-            overview.setAverageDuration(totalDuration/numberOfEndedTrips);
+            tripView.setAverageDuration(totalDuration/numberOfEndedTrips);
         }else {
-            overview.setAverageDuration(0.00);
+            tripView.setAverageDuration(0.00);
         }
-        overview.setTotalIncome(totalPrice);
-        overview.setNumberOfUsedBoats(numberOfEndedTrips+numberOfOngoingTrips);
+        tripView.setTotalIncome(totalPrice);
+        tripView.setNumberOfUsedBoats(numberOfEndedTrips+numberOfOngoingTrips);
 
-        return overview;
+        return tripView;
     }
 }

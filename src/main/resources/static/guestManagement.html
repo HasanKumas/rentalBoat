@@ -25,7 +25,7 @@
 
     <!-- Local CSS and JS -->
     <link rel="stylesheet" type="text/css" href="\css\main.css">
-    <script src="js/boat.js"></script>
+    <script src="js/guest.js"></script>
 
     <title>Hotel Molveno Rental Boats</title>
 </head>
@@ -92,51 +92,42 @@
 </nav>
 <br/>
 <div class="container-fluid">
-    <form id="formInputBoats">
+    <form id="formInputGuests">
         <div class="form-row">
             <div class="form-group col-md-6">
-                <label for="boatNumberInput">Boat Number</label>
-                <input type="text" class="form-control" id="boatNumberInput" required>
+                <label for="guestNameInput">Guest Name</label>
+                <input type="text" class="form-control" id="guestNameInput" required>
             </div>
         </div>
         <div class="form-row">
             <div class="form-group col-md-6">
-                <label for="boatTypeInput">Boat Type</label>
-                <select id="boatTypeInput"  >
-                    <option value = "rowing">Rowing</option>
-                </select>
+                <label for="idTypeInput">ID Type</label>
+                <input type="text" class="form-control" id="idTypeInput">
             </div>
         </div>
         <div class="form-row">
             <div class="form-group col-md-6">
-                <label for="maxSeatsInput">Number Of Seats</label>
-                <input type="number" class="form-control" min="1" value="1" id="maxSeatsInput">
+                <label for="idNumberInput">ID Number</label>
+                <input type="text" class="form-control" id="idNumberInput">
             </div>
         </div>
         <div class="form-row">
             <div class="form-group col-md-6">
-                <label for="boatMinPriceInput">Boat Minimum Price</label>
-                <input type="number" class="form-control" min="0" value="10" id="boatMinPriceInput">
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for="boatActPriceInput">Boat Actual Price</label>
-                <input type="number" class="form-control" min="0" value="10" id="boatActPriceInput">
+                <label for="phoneNumberInput">Phone Number</label>
+                <input type="text" class="form-control" id="phoneNumberInput" required>
             </div>
         </div>
     </form>
 </div>
 
 <div class="container-fluid">
-    <table id="tableShowBoat" class="display" style="width:100%">
+    <table id="tableShowGuest" class="display" style="width:100%">
         <thead>
         <tr>
-            <th>Boat Number</th>
-            <th>Boat Type</th>
-            <th>Number Of Seats</th>
-            <th>Minimum Price(€)</th>
-            <th>Actual Price(€)</th>
+            <th>Guest Name</th>
+            <th>ID Type</th>
+            <th>ID Number</th>
+            <th>Phone Number</th>
             <th>Action</th>
             <th>Action</th>
         </tr>

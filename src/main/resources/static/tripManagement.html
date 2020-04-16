@@ -37,7 +37,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel"></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close cancelModal"  aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -45,7 +45,7 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary cancelModal" >Cancel</button>
                 <button type="button" class="btn btn-primary" id="okDelModalBtn">OK</button>
                 <button type="button" class="btn btn-primary" id="startModalBtn">Start</button>
                 <button type="button" class="btn btn-primary" id="checkModalBtn">Check</button>
@@ -74,9 +74,11 @@
                     Menu<span class="sr-only">(current)</span>
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="boatManagement.html">Boat Management</a>
+                    <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="tripManagement.html">Trip Management</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="boatManagement.html">Boat Management</a>
+                    <a class="dropdown-item" href="guestManagement.html">Guest Management</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="currentDayOverview.html">Current Day Overview</a>
                     <div class="dropdown-divider"></div>
@@ -98,11 +100,39 @@
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label for="numberOfPersonsInput">Number Of Persons</label>
-                <input type="number" class="form-control" id="numberOfPersonsInput">
+                <input type="number" class="form-control" min="1" value="3" id="numberOfPersonsInput" required>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="container-fluid">
+    <form id="formInputGuests">
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="guestNameInput">Guest Name</label>
+                <input type="text" class="form-control" id="guestNameInput">
             </div>
             <div class="form-group col-md-6">
                 <label for="suitableBoatNumberInput">Suitable Boat Number</label>
                 <input type="text" class="form-control" id="suitableBoatNumberInput" disabled>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="idTypeInput">ID Type</label>
+                <input type="text" class="form-control" id="idTypeInput">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="idNumberInput">ID Number</label>
+                <input type="text" class="form-control" id="idNumberInput">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="phoneNumberInput">Phone Number</label>
+                <input type="text" class="form-control" id="phoneNumberInput">
             </div>
         </div>
     </form>
@@ -112,7 +142,7 @@
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label for="actualPriceInput">Actual Price</label>
-                <input type="number" class="form-control" id="actualPriceInput">
+                <input type="number" class="form-control" min="0" value="0.00" id="actualPriceInput" required>
             </div>
         </div>
 
@@ -124,7 +154,7 @@
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label for="minPriceInput">Minimum Price</label>
-                <input type="number" class="form-control" id="minPriceInput">
+                <input type="number" class="form-control" min="0" value="0.00" id="minPriceInput" required>
             </div>
         </div>
 
@@ -138,6 +168,8 @@
             <th>Boat Number</th>
             <th>Boat Type</th>
             <th>Persons(N)</th>
+            <th>Guest Name</th>
+            <th>Phone Number</th>
             <th>Start Date</th>
             <th>Start Time</th>
             <th>Duration (hrs/min)</th>
