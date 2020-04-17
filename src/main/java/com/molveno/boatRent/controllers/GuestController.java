@@ -29,7 +29,7 @@ public class GuestController {
         return guestRepository.save(guest).getId();
     }
     @DeleteMapping("/{id}")
-    void deleteGuest(@PathVariable Long id) {
+    public void deleteGuest(@PathVariable Long id) {
         guestRepository.deleteById(id);
     }
 

@@ -11,4 +11,6 @@ import java.util.List;
 
 public interface BoatRepository extends JpaRepository<Boat, Long> {
     Boat findOneByBoatNumberIgnoreCase(String boatNumber);
+    List<Boat> findAllByType(String boatType);
+    List<Boat> findAllByTypeOrderByNumberOfSeatsAsc(String boatType);
 }

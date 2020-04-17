@@ -2,6 +2,7 @@ package com.molveno.boatRent.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.molveno.boatRent.model.Boat;
+import com.molveno.boatRent.model.Trip;
 import com.molveno.boatRent.repositories.BoatRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,6 +10,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import static org.mockito.Mockito.*;
+
+
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -72,17 +76,20 @@ public class BoatControllerTest {
                 .andExpect(jsonPath("$.[0].numberOfSeats", is(3)))
                 .andExpect(jsonPath("$.[0].type", is("rowing")))
                 .andExpect(status().isOk());
+        verify(boatRepository, times(1)).findAll();
     }
 
     @Test
     public  void  testPost() throws Exception{
         Boat newBoat = new Boat();
-        newBoat.setId(21L);
-        newBoat.setBoatNumber("11");
+        List<Trip> trips = new ArrayList<>();
+        newBoat.setId(12L);
+        newBoat.setBoatNumber("15");
         newBoat.setMinPrice(2.00);
         newBoat.setActualPrice(20.00);
         newBoat.setNumberOfSeats(3);
         newBoat.setType("rowing");
+        newBoat.setTrips(trips);
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(newBoat);
 
@@ -91,12 +98,8 @@ public class BoatControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andDo(print())
-                .andExpect(jsonPath("$.id", is(newBoat.getId().intValue())))
-                .andExpect(jsonPath("$.boatNumber", is(newBoat.getBoatNumber())))
-                .andExpect(jsonPath("$.minPrice", is(newBoat.getMinPrice())))
-                .andExpect(jsonPath("$.actualPrice", is(newBoat.getActualPrice())))
-                .andExpect(jsonPath("$.numberOfSeats", is(newBoat.getNumberOfSeats())))
-                .andExpect(jsonPath("$.type", is(newBoat.getType())))
+                .andExpect(jsonPath("$", is("The boat has added..")))
                 .andExpect(status().isOk());
+        verify(boatRepository, times(1)).save(Mockito.any(Boat.class));
     }
 }

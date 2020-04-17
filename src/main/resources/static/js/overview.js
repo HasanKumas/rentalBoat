@@ -32,13 +32,15 @@ function showBoatOverview() {
     $.get('api/overviews/boatOverviews', function(boatUsages){
         $.each(boatUsages, function(index, boatUsage) {
              $('#tableBoatOverviewBody').append('<tr><td>' + boatUsage.boatNumber + '</td>' + '<td>' +
-             boatUsage.numberOfSeats + '</td><td>' + Math.floor(boatUsage.totalTime/60) + " h " + boatUsage.totalTime % 60 + " m" + '</td><td>' +
+              boatUsage.type + '</td>' + '<td>' +
+              boatUsage.numberOfSeats + '</td><td>' + Math.floor(boatUsage.totalTime/60) + " h " + boatUsage.totalTime % 60 + " m" + '</td><td>' +
               boatUsage.income.toFixed(2) + '</td></tr>');
+              //total overviews accumulated inside the loop
               totalTime += boatUsage.totalTime;
               totalIncome += boatUsage.income;
         });
-        $('#tableBoatOverviewBody').append('<tr><td></td>' + '<td>' +
-                         "Total" + '</td><td>' + Math.floor(totalTime/60) + " h " + totalTime % 60 + " m" + '</td><td>' +
-                          totalIncome.toFixed(2) + '</td></tr>');
+        $('#tableBoatOverviewBody').append('<tr style="background-color:powderblue; color:red;font-size:25px"><td></td><td></td>' +
+                                            '<td>' + "Total" + '</td><td>' + Math.floor(totalTime/60) + " h " + totalTime % 60 + " m" +
+                                            '</td><td>' + totalIncome.toFixed(2) + '</td></tr>');
     });
 }

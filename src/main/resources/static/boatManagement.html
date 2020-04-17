@@ -104,7 +104,14 @@
                 <label for="boatTypeInput">Boat Type</label>
                 <select id="boatTypeInput"  >
                     <option value = "rowing">Rowing</option>
+                    <option value = "electrical">Electrical</option>
                 </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="chargingTimeInput">Charging Time(min)</label>
+                <input type="number" class="form-control" min="0" value="0" id="chargingTimeInput">
             </div>
         </div>
         <div class="form-row">
@@ -134,6 +141,7 @@
         <tr>
             <th>Boat Number</th>
             <th>Boat Type</th>
+            <th>Charging Time(min)</th>
             <th>Number Of Seats</th>
             <th>Minimum Price(€)</th>
             <th>Actual Price(€)</th>
