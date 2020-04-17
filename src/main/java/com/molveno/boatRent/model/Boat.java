@@ -18,6 +18,7 @@ public class Boat {
     private Double minPrice;
     private  Double actualPrice;
     private String type;
+    private Integer chargingTime;
 
     @OneToMany(mappedBy = "boat")
     @JsonIgnore
@@ -69,6 +70,14 @@ public class Boat {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Integer getChargingTime() {
+        return chargingTime;
+    }
+
+    public void setChargingTime(Integer chargingTime) {
+        this.chargingTime = chargingTime;
     }
 
     public List<Trip> getTrips() {

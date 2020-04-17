@@ -33,16 +33,18 @@ public class OverviewController {
         }
         for(int i = 0; i < boatViews.size(); i++){
                 boatViews.get(i).setBoatNumber(boats.get(i).getBoatNumber());
+                boatViews.get(i).setType(boats.get(i).getType());
                 boatViews.get(i).setNumberOfSeats(boats.get(i).getNumberOfSeats());
                 Double income = 0.00;
                 Integer duration = 0;
                 boatViews.get(i).setIncome(income);
                 boatViews.get(i).setTotalTime(duration);
         }
-        //set the income and totalTime for current day
+        //find all ended trips for current day
         LocalDate today = LocalDate.now();
-        List<Trip> endedTrips = tripRepository.findAllByStartDateAndStatus(today, "ended");
+        List<Trip> endedTrips = tripRepository.findAllByEndDateAndStatus(today, "ended");
 
+        //set the income and totalTime for current day per boatView
         for (BoatView boatView : boatViews){
             Double income = 0.00;
             Integer duration = 0;
@@ -60,12 +62,12 @@ public class OverviewController {
 
     @GetMapping("/tripOverviews")
     public TripView getTripsOverview (){
-        //no need to create a repository. An Overview instance is enough to return required information
         TripView tripView = new TripView();
+
         //get the trips for current day according to the status. And collect the required information for overview
         LocalDate today = LocalDate.now();
-        List<Trip> ongoingTrips = tripRepository.findAllByStartDateAndStatus(today, "ongoing..");
-        List<Trip> endedTrips = tripRepository.findAllByStartDateAndStatus(today, "ended");
+        List<Trip> ongoingTrips = tripRepository.findAllByStatus("ongoing..");
+        List<Trip> endedTrips = tripRepository.findAllByEndDateAndStatus(today, "ended");
         Integer numberOfOngoingTrips = ongoingTrips.size();
         Integer numberOfEndedTrips = endedTrips.size();
 

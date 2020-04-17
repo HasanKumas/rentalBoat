@@ -16,6 +16,7 @@ function getBoats() {
                                 'id': json[i].id,
                                 'boatNumber': json[i].boatNumber,
                                 'type': json[i].type,
+                                'chargingTime': json[i].chargingTime,
                                 'numberOfSeats': json[i].numberOfSeats,
                                 'minPrice': json[i].minPrice.toFixed(2),
                                 'actualPrice': json[i].actualPrice.toFixed(2),
@@ -29,6 +30,7 @@ function getBoats() {
         columns: [
             { data: "boatNumber" },
             { data: "type" },
+            { data: "chargingTime" },
             { data: "numberOfSeats" },
             { data: "minPrice" },
             { data: "actualPrice" },
@@ -90,6 +92,7 @@ function getBoats() {
 
             document.getElementById("boatNumberInput").value = data1.boatNumber;
             document.getElementById("boatTypeInput").value = data1.type;
+            document.getElementById("chargingTimeInput").value = data1.chargingTime;
             document.getElementById("maxSeatsInput").value = data1.numberOfSeats;
             document.getElementById("boatMinPriceInput").value = data1.minPrice;
             document.getElementById("boatActPriceInput").value = data1.actualPrice;
@@ -105,11 +108,12 @@ function postBoat() {
     var boat = {
         boatNumber: $("#boatNumberInput").val(),
         type: $("#boatTypeInput").val(),
+        chargingTime: Number(($("#boatTypeInput").val() == "electrical") ? ($("#chargingTimeInput").val()):0),
         numberOfSeats: Number($("#maxSeatsInput").val()),
         minPrice: Number($("#boatMinPriceInput").val()),
-        actualPrice: Number($("#boatActPriceInput").val()),
+        actualPrice: Number($("#boatActPriceInput").val())
     };
-
+console.log($("#boatTypeInput").val());
     var jsonObject = JSON.stringify(boat);
 
     $.ajax({
@@ -121,6 +125,7 @@ function postBoat() {
             alert(message);
             $("#boatNumberInput").val("");
             $("#boatTypeInput").val("");
+            $("#chargingTimeInput").val("");
             $("#maxSeatsInput").val("");
             $("#boatMinPriceInput").val("");
             $("#boatActPriceInput").val("");
@@ -128,7 +133,7 @@ function postBoat() {
         },
         error: function () {
             alert("try again");
-        },
+        }
     });
 }
 
@@ -150,6 +155,7 @@ function changeBoat(boatId) {
     var boat = {
             boatNumber: $("#boatNumberInput").val(),
             type: $("#boatTypeInput").val(),
+            chargingTime: Number(($("#boatTypeInput").val() == "electrical") ? ($("#chargingTimeInput").val()):0),
             numberOfSeats: Number($("#maxSeatsInput").val()),
             minPrice: Number($("#boatMinPriceInput").val()),
             actualPrice: Number($("#boatActPriceInput").val())

@@ -1,5 +1,4 @@
 var tripTable;
-var numberOfPersons;
 var tripId;
 
 $(document).ready(function () {
@@ -115,18 +114,21 @@ function openStartTripDialog() {
     });
 }
 /**
- * Requests a suitable boat number according to number of persons and
+ * Requests a suitable boat number according to number of persons and boat type and
  * if a suitable boat number returned ask for the guest info.
  * @author Hasan Kumas
  */
 function checkSuitableBoat() {
     //request the suitable boat number
-    numberOfPersons = document.getElementById("numberOfPersonsInput").value;
+    var numberOfPersons = document.getElementById("numberOfPersonsInput").value;
+    var boatType = $("#boatTypeInput").val();
     $.get(
-        "api/boats/suitableBoats?numOfPersons=" + numberOfPersons, function (result) {
+        "api/boats/suitableBoats?numOfPersons=" + numberOfPersons + "&boatType=" + boatType , function (result) {
             if (result == "There is no suitable boat...") {
                 $("#exampleModal").modal("hide");
-                alert("There is no suitable boat...");
+                $("#startModalBtn").off();
+                $(".cancelModal").off();
+                alert(result);
             } else {
                 //call guest registration form if there is a suitable boat
                 var content = $("#formInputGuests").html();
@@ -260,13 +262,14 @@ function openSetActualPriceDialog() {
     modalDisplay();
     var content = $("#formInputActualPrice").html();
     $("#exampleModal .modal-body").html(content);
-    $("#exampleModal .modal-title").text("Set Actual Price");
+    $("#exampleModal .modal-title").text("Set Actual Price For Required Boat Type");
     $("#setActualPriceBtn").show();
      //set actual price execution button and cancel button listeners
     $("#setActualPriceBtn").one("click", function () {
         var actualPrice = $("#actualPriceInput").val();
+        var boatType = $("#boatTypeActInput").val();
         $("#exampleModal").modal("hide");
-        setActualPrice(actualPrice);
+        setActualPrice(boatType, actualPrice);
         $(".cancelModal").off();
     });
     $(".cancelModal").one("click", function () {
@@ -275,12 +278,15 @@ function openSetActualPriceDialog() {
     });
 }
 /**
- * sets the actual price through
+ * sets the actual price according to boat type through
  * sending a put request to backend.
+ *@param boatType is the first parameter
+ *@param actualPrice is the second parameter
  */
-function setActualPrice(actualPrice) {
+function setActualPrice(boatType, actualPrice) {
     $.ajax({
-        url: "api/boats/setActualPrice/?actualPrice=" + actualPrice,
+        url: "api/boats/setActualPrice/?boatType=" + boatType +
+                                        "&actualPrice=" + actualPrice,
         type: "PUT",
         contentType: "application/json",
         success: function () {
@@ -300,13 +306,14 @@ function openSetMinPriceDialog() {
     modalDisplay();
     var content = $("#formInputMinPrice").html();
     $("#exampleModal .modal-body").html(content);
-    $("#exampleModal .modal-title").text("Set Minimum Price");
+    $("#exampleModal .modal-title").text("Set Minimum Price For Required Boat Type");
     $("#setMinPriceBtn").show();
      //set min price execution button listener
     $("#setMinPriceBtn").one("click", function () {
         var minPrice = $("#minPriceInput").val();
+        var boatType = $("#boatTypeMinInput").val();
         $("#exampleModal").modal("hide");
-        setMinPrice(minPrice);
+        setMinPrice(boatType, minPrice);
         $(".cancelModal").off();
     });
     $(".cancelModal").one("click", function () {
@@ -318,9 +325,10 @@ function openSetMinPriceDialog() {
  * sets minimum price through
  * sending a put request to backend.
  */
-function setMinPrice(minPrice) {
+function setMinPrice(boatType, minPrice) {
     $.ajax({
-        url: "api/boats/setMinPrice/?minPrice=" + minPrice,
+        url: "api/boats/setMinPrice/?boatType=" + boatType +
+                                    "&minPrice=" + minPrice,
         type: "PUT",
         contentType: "application/json",
         success: function () {

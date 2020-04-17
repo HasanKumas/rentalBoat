@@ -21,9 +21,9 @@ import java.util.List;
 public class TripController {
     @Autowired//connect to database
     private TripRepository tripRepository;
-    @Autowired//connect to database
+    @Autowired
     private BoatRepository boatRepository;
-    @Autowired//connect to database
+    @Autowired
     private GuestRepository guestRepository;
 
     @GetMapping
@@ -32,49 +32,89 @@ public class TripController {
     }
 
     @DeleteMapping("/{id}")
-    void deleteTrip(@PathVariable Long id) {
+    public void deleteTrip(@PathVariable Long id) {
         tripRepository.deleteById(id);
     }
 
+    /**To start set the the initial values by creating a trip
+     * for the requested boat.
+     * Add the requested guest and the suitable boat to the trip.
+     * @param suitableBoatNumber 1st parameter
+     * @param numOfPersons 2nd parameter
+     * @param guestId 3rd parameter
+     * @return a confirmation message
+     */
     @PostMapping
     public String startTrip(@RequestParam("suitableBoatNumber") String suitableBoatNumber, @RequestParam("numOfPersons") Integer numOfPersons, @RequestParam("guestId") Long guestId) {
         Trip trip = new Trip();
         Guest guest = guestRepository.getOne(guestId);
         Boat suitableBoat = boatRepository.findOneByBoatNumberIgnoreCase(suitableBoatNumber);
 
-        //set the price of trip to max of minPrice and actualPrice of Boat
+         /*set the price of the trip to the max of minPrice
+          * and actualPrice of Boat. This price will be used to calculate total price
+          */
         if(suitableBoat.getMinPrice() > suitableBoat.getActualPrice()){
             trip.setPrice(suitableBoat.getMinPrice());
         }else{
             trip.setPrice(suitableBoat.getActualPrice());
         }
         trip.setTotalPrice(0.00);
-        trip.setBoat(suitableBoat);
+        trip.setNumberOfPersons(numOfPersons);
+
+        //set current date and time for start date and time
         LocalDate today = LocalDate.now();
         trip.setStartDate(today);
         LocalTime startTime = LocalTime.now();
         trip.setStartTime(startTime);
-        trip.setNumberOfPersons(numOfPersons);
+
+        //set the trip status to "ongoing"
         trip.setStatus("ongoing..");
 
+        //add suitable boat and guest to the trip
+        trip.setBoat(suitableBoat);
         trip.setGuest(guest);
+
         tripRepository.save(trip);
+
         return "The trip has started..";
     }
+
+    /**
+     * To stop the requested trip with id number
+     * updates the status and
+     * calculates the duration and total price
+     * @param id requested trip id
+     * @return the the stopped trip object
+     */
     @PutMapping("/{id}")
     public Trip stopTrip(@PathVariable("id") Long id){
-        Double totalPrice;
+        double totalPrice;
+
+        //find the requested trip from database
         Trip startedTrip = tripRepository.getOne(id);
+
+        //update trip satus to "ended"
         startedTrip.setStatus("ended");
+
+        /*calculate the duration in minutes by getting the difference
+          between starting datetime and current datetime
+         */
         LocalDate startDate = startedTrip.getStartDate();
         LocalTime startTime = startedTrip.getStartTime();
         LocalDateTime startDateTime = LocalDateTime.of(startDate, startTime);
+
         LocalDate endDate = LocalDate.now();
         LocalTime endTime = LocalTime.now();
         LocalDateTime endDateTime = LocalDateTime.of(endDate, endTime);
+
         int duration = (int)startDateTime.until( endDateTime, ChronoUnit.MINUTES );
+
         startedTrip.setDuration(duration);
+        startedTrip.setEndDate(endDate);
+
+        //calculate total price according to current trip price per hour and duration
         totalPrice = (startedTrip.getPrice()*duration)/60;
+
         startedTrip.setTotalPrice(totalPrice);
 
         return tripRepository.save(startedTrip);
