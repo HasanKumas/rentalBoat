@@ -5,12 +5,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!--    jquery-->
+<!--        jquery-->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
     <!--    data tables-->
     <script src="//cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
     <link rel="stylesheet" href="//cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" >
-    <!--    bootsrap-->
+<!--        bootsrap-->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
@@ -18,6 +19,8 @@
             crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 
+
+    <script src="http://momentjs.com/downloads/moment.min.js"></script>
     <!--  Data Table  buttons-->
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
     <script src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
@@ -25,7 +28,7 @@
 
     <!-- Local CSS and JS -->
     <link rel="stylesheet" type="text/css" href="\css\main.css">
-    <script src="js/boat.js"></script>
+    <script src="js/reservation.js"></script>
 
     <title>Hotel Molveno Rental Boats</title>
 </head>
@@ -36,7 +39,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel"></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close cancelModal"  aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -44,10 +47,10 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary cancelModal" >Cancel</button>
                 <button type="button" class="btn btn-primary" id="okDelModalBtn">OK</button>
-                <button type="button" class="btn btn-primary" id="saveEdtModalBtn">Save</button>
-                <button type="button" class="btn btn-primary" id="saveCrtModalBtn">Save</button>
+                <button type="button" class="btn btn-primary" id="completeModalBtn">Complete Reservation</button>
+                <button type="button" class="btn btn-primary" id="checkModalBtn">Check</button>
             </div>
         </div>
     </div>
@@ -93,80 +96,64 @@
     </div>
 </nav>
 <br/>
-<div class="container-fluid">
-    <form id="formInputBoats">
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for="boatNumberInput">Boat Number</label>
-                <input type="text" class="form-control" id="boatNumberInput" required>
-            </div>
+
+<div class="container-fluid" id="formReservationInput">
+    <div class="row">
+        <div class="form-group col-md-4">
+            <label for="boatTypeResInput">Boat Type</label>
+            <select id="boatTypeResInput"  >
+                <option value = "rowing">Rowing</option>
+                <option value = "electrical">Electrical</option>
+            </select>
         </div>
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for="boatTypeInput">Boat Type</label>
-                <select id="boatTypeInput"  >
-                    <option value = "rowing">Rowing</option>
-                    <option value = "electrical">Electrical</option>
-                </select>
-            </div>
+        <div class="form-group col-md-4">
+            <label class="control-label" for="resDateInput">Select DateTime</label>
+            <input type="datetime-local" id="resDateInput" name="resDateInput" >
         </div>
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for="chargingTimeInput">Charging Time(min)</label>
-                <input type="number" class="form-control" min="0" value="0" id="chargingTimeInput">
-            </div>
-<!--        </div>-->
-<!--        <div class="form-row">-->
-            <div class="form-group col-md-6">
-                <label for="maxSeatsInput">Number Of Seats</label>
-                <input type="number" class="form-control" min="1" value="1" id="maxSeatsInput">
-            </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-3">
+            <label for="resDurationInput">Duration</label>
+            <input type="number" class="form-control" min="10" value="10" id="resDurationInput" >
         </div>
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                <label for="boatMinPriceInput">Boat Minimum Price</label>
-                <input type="number" class="form-control" min="0" value="10" id="boatMinPriceInput">
-            </div>
-<!--        </div>-->
-<!--        <div class="form-row">-->
-            <div class="form-group col-md-6">
-                <label for="boatActPriceInput">Boat Actual Price</label>
-                <input type="number" class="form-control" min="0" value="10" id="boatActPriceInput">
-            </div>
+        <div class="form-group col-md-3">
+            <label for="numOfGuestsResInput">Guests</label>
+            <input type="number" class="form-control" min="1" value="1" id="numOfGuestsResInput" >
         </div>
-    </form>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-6">
+            <label for="suitBoatsResInput">Suitable Boat Numbers</label>
+            <input type="text" class="form-control"  id="suitBoatsResInput" disabled>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group col-md-4">
+            <label for="guestNameResInput">Guest Name</label>
+            <input type="text" class="form-control" id="guestNameResInput">
+        </div>
+        <div class="form-group col-md-4">
+            <label for="phoneNumberResInput">Phone Number</label>
+            <input type="text" class="form-control" id="phoneNumberResInput">
+        </div>
+    </div>
 </div>
 
 <div class="container-fluid">
-    <table id="tableShowBoat" class="display" style="width:100%">
+    <table id="tableShowReservation" class="display" style="width:100%">
         <thead>
         <tr>
+            <th>Reservation Number</th>
+            <th>Date</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Guest Name</th>
             <th>Boat Number</th>
-            <th>Boat Type</th>
-            <th>Charging Time(min)</th>
-            <th>Number Of Seats</th>
-            <th>Minimum Price(€)</th>
-            <th>Actual Price(€)</th>
-            <th>Block Status</th>
-            <th>Action</th>
+            <th>Price(€)</th>
             <th>Action</th>
         </tr>
         </thead>
     </table>
 </div>
-<form id="formInputBlock" class="form-group col-md-3 blockBoat">
-    <div class="form-row">
-        <div class="form-group col-md-8">
-            <label for="blockNumberInput">Enter the boat number</label>
-            <input type="text" class="form-control"  value="1" id="blockNumberInput" required>
-        </div>
-    </div>
-    <div class="form-row">
-        <div class="form-group col-md-8">
-            <button type="button" class="btn btn-danger" id="blockBtn">Block</button>
-            <button type="button" class="btn btn-secondary" id="blockCancelBtn">Cancel</button>
-        </div>
-    </div>
-</form>
 </body>
 </html>

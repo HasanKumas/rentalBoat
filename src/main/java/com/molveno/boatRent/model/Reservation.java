@@ -8,7 +8,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Entity
-public class Trip {
+public class Reservation {
     @Id
     @GeneratedValue
     private Long id;
@@ -18,25 +18,16 @@ public class Trip {
     private LocalDate endDate;
     @JsonFormat(pattern = "HH:mm")
     private LocalTime startTime;
-    private  Integer numberOfPersons;
-    private String status;
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime endTime;
     private Integer duration;
-    private Double price;//max(minPrice, actualPrice) of the boat
-    private Double totalPrice;
+    private Double reservationPrice;
+    private  Integer numOfPersons;
 
     @ManyToMany
-    List<Boat> boats;
+    private List<Boat> boats;
     @ManyToOne
     Guest guest;
-
-    public Trip() {
-        //set the date and time to current when a trip started
-        this.startDate = LocalDate.now();
-        this.startTime = LocalTime.now();
-        this.status = "ongoing..";
-        this.duration = 0;
-        this.totalPrice = 0.00;
-    }
 
     public Long getId() {
         return id;
@@ -70,36 +61,12 @@ public class Trip {
         this.startTime = startTime;
     }
 
-    public Double getPrice() {
-        return price;
+    public LocalTime getEndTime() {
+        return endTime;
     }
 
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    public Double getTotalPrice() {
-        return totalPrice;
-    }
-
-    public void setTotalPrice(Double totalPrice) {
-        this.totalPrice = totalPrice;
-    }
-
-    public Integer getNumberOfPersons() {
-        return numberOfPersons;
-    }
-
-    public void setNumberOfPersons(Integer numberOfPersons) {
-        this.numberOfPersons = numberOfPersons;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
     }
 
     public Integer getDuration() {
@@ -108,6 +75,22 @@ public class Trip {
 
     public void setDuration(Integer duration) {
         this.duration = duration;
+    }
+
+    public Double getReservationPrice() {
+        return reservationPrice;
+    }
+
+    public void setReservationPrice(Double reservationPrice) {
+        this.reservationPrice = reservationPrice;
+    }
+
+    public Integer getNumOfPersons() {
+        return numOfPersons;
+    }
+
+    public void setNumOfPersons(Integer numOfPersons) {
+        this.numOfPersons = numOfPersons;
     }
 
     public List<Boat> getBoats() {

@@ -11,6 +11,6 @@ import java.util.List;
 public interface TripRepository extends JpaRepository<Trip, Long> {
     List<Trip> findAllByStatus(String status);
     List<Trip> findAllByEndDateAndStatus(LocalDate startDate, String status);
-    List<Trip> findAllByBoatTypeAndStatus(String type, String status);
-    List<Trip> findAllByEndDateAndBoatTypeAndStatus(LocalDate startDate, String type, String status);
+    List<Trip> findAllByBoatsTypeAndStatus(String type, String status);
+    List<Trip> findAllByEndDateAndBoatsTypeAndStatus(LocalDate startDate, String type, String status);
 }

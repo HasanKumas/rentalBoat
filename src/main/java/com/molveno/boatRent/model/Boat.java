@@ -1,10 +1,8 @@
 package com.molveno.boatRent.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,10 +17,19 @@ public class Boat {
     private  Double actualPrice;
     private String type;
     private Integer chargingTime;
+    private String blockStatus;
 
-    @OneToMany(mappedBy = "boat")
+    @OneToMany(mappedBy = "boats")
     @JsonIgnore
     private List<Trip> trips = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "boats")
+    @JsonIgnore
+    private List<Reservation> reservations = new ArrayList<>();
+
+    public  Boat(){
+        this.blockStatus = "not blocked";
+    }
 
     public Long getId() {
         return id;
@@ -74,6 +81,14 @@ public class Boat {
 
     public Integer getChargingTime() {
         return chargingTime;
+    }
+
+    public String getBlockStatus() {
+        return blockStatus;
+    }
+
+    public void setBlockStatus(String blockStatus) {
+        this.blockStatus = blockStatus;
     }
 
     public void setChargingTime(Integer chargingTime) {
