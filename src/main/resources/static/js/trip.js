@@ -4,6 +4,14 @@ var tripId;
 $(document).ready(function () {
     getTrips();
 });
+
+function getBoatNumbers(boats){
+       var column = [];
+       for(var i=0; i<boats.length; i++){
+          column.push(boats[i].boatNumber);
+       }
+       return column;
+}
 /**
  * list all the trips requested from backend
  * in a data table. And allow the user to start a trip,
@@ -24,8 +32,8 @@ function getTrips() {
                 for (var i = 0; i < json.length; i++) {
                     return_data.push({
                         id: json[i].id,
-                        boatNumber: json[i].boat.boatNumber,
-                        type: json[i].boat.type,
+                        boatNumber: getBoatNumbers(json[i].boats),
+                        type: json[i].boats[0].type,
                         numberOfPersons: json[i].numberOfPersons,
                         name:json[i].guest.name,
                         phoneNumber:json[i].guest.phoneNumber,
@@ -124,11 +132,11 @@ function checkSuitableBoat() {
     var boatType = $("#boatTypeInput").val();
     $.get(
         "api/boats/suitableBoats?numOfPersons=" + numberOfPersons + "&boatType=" + boatType , function (result) {
-            if (result == "There is no suitable boat...") {
+            if (result == false) {
                 $("#exampleModal").modal("hide");
                 $("#startModalBtn").off();
                 $(".cancelModal").off();
-                alert(result);
+                alert("There is no available boats..");
             } else {
                 //call guest registration form if there is a suitable boat
                 var content = $("#formInputGuests").html();
@@ -155,12 +163,20 @@ function checkSuitableBoat() {
  * @author Hasan Kumas
  */
 function startTrip(numberOfPersons) {
+
+    var guestName = $("#guestNameInput").val();
+    var phoneNumber = $("#phoneNumberInput").val();
+    if (!(guestName && phoneNumber)) {
+        alert('The guest name and phone number should be set..');
+        return;
+    }
+
     //first save guest
     var guest = {
-            name: $("#guestNameInput").val(),
+            name: guestName,
             idType: $("#idTypeInput").val(),
             idNumber: $("#idNumberInput").val(),
-            phoneNumber: $("#phoneNumberInput").val()
+            phoneNumber: phoneNumber
     }
 
     var jsonObject = JSON.stringify(guest);
@@ -174,8 +190,7 @@ function startTrip(numberOfPersons) {
         //if succeeded include post request for trip in success function
             $.ajax({
                 url:
-                    "api/trips?suitableBoatNumber=" +
-                    document.getElementById("suitableBoatNumberInput").value +
+                    "api/trips?suitableBoatNumber=" + document.getElementById("suitableBoatNumberInput").value +
                     "&numOfPersons=" + numberOfPersons +
                     "&guestId=" + guestId,
                 type: "POST",

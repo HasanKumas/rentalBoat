@@ -1,18 +1,18 @@
 package com.molveno.boatRent.controllers;
 
 import com.molveno.boatRent.model.Boat;
+import com.molveno.boatRent.model.Reservation;
 import com.molveno.boatRent.model.Trip;
 import com.molveno.boatRent.repositories.BoatRepository;
+import com.molveno.boatRent.repositories.ReservationRepository;
 import com.molveno.boatRent.repositories.TripRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +23,8 @@ public class BoatController {
     private BoatRepository boatRepository;
     @Autowired
     private TripRepository tripRepository;
+    @Autowired
+    private ReservationRepository reservationRepository;
 
     //returns all records in repository
     @GetMapping
@@ -43,12 +45,12 @@ public class BoatController {
             return "The boat number "+ boat.getBoatNumber() + " is already exists. Please set another number.";
         }
         boatRepository.save(boat);
-        return "The boat has added..";
+        return "The boat has been added..";
     }
 
     /**
      * Deletes a record according to given id param.
-     * @param id
+     * @param id parameter
      */
     @DeleteMapping("/{id}")
     public void deleteBoat(@PathVariable Long id) {
@@ -61,9 +63,14 @@ public class BoatController {
      * @param boat is the requested body.
      */
     @PutMapping("/{id}")
-    public void updateBoat(@PathVariable("id") Long id,  @RequestBody Boat boat){
+    public String updateBoat(@PathVariable("id") Long id,  @RequestBody Boat boat){
+        Boat existingBoat = boatRepository.findOneByBoatNumberIgnoreCase(boat.getBoatNumber());
+        if(existingBoat != null) {
+            return "The boat number "+ boat.getBoatNumber() + " is already exists. Please set another number.";
+        }
         boat.setId(id);
         boatRepository.save(boat);
+        return "The boat has been modified..";
     }
 
     /**
@@ -108,65 +115,249 @@ public class BoatController {
      * @return suitableBoatNumber
      */
     @GetMapping("/suitableBoats")
-    public String getSuitableBoats(@RequestParam("numOfPersons") Integer numOfPersons, @RequestParam("boatType") String boatType) {
+    public List<String> getSuitableBoats(@RequestParam("numOfPersons") Integer numOfPersons, @RequestParam("boatType") String boatType) {
 
-        String suitableBoatNumber ="There is no suitable boat...";
+         /*load all required type of boats not blocked ordered by number of seats in ascending
+        to a list then remove the boats inside ongoingTrips and reservations to find boats not in use*/
+        List<Boat> boatsNotInUsed = new ArrayList<>(boatRepository.findAllByTypeAndBlockStatusOrderByNumberOfSeatsAsc(boatType, "not blocked"));
+
         LocalDate today = LocalDate.now();
 
-        //find all trips still ongoing to check boats in use
-        List<Trip> ongoingTrips = tripRepository.findAllByBoatTypeAndStatus(boatType, "ongoing..");
+        //find all trips still ongoing today to check boats in use
+        List<Boat> boatsNotInUse = new ArrayList<>(findSuitableBoatsOfToday(boatType, boatsNotInUsed, today));
 
-        /*load all boats ordered by number of seats in ascending
-        to a list then remove the boats inside ongoingTrips to find boats not in use*/
-        List<Boat> boatsNotInUse = new ArrayList<>(boatRepository.findAllByTypeOrderByNumberOfSeatsAsc(boatType));
-        for (Trip ongoingTrip : ongoingTrips){
-                boatsNotInUse.remove(ongoingTrip.getBoat());
-        }
+        // find the boats which are already reserved for today
+        List<Reservation> existingReservations = reservationRepository.findAllByBoatsTypeAndStartDate(boatType, today);
 
-        /*for electrical boats checks the end time of ended trips
-         taking into account charging time for suitability*/
-        if(boatType.equals("electrical")){
-            //find all trips ended today for electrical boats
-            List<Trip> endedTrips = tripRepository.findAllByEndDateAndBoatTypeAndStatus(today, boatType, "ended");
+        for (Reservation existingReservation : existingReservations) {
+            if (boatType.equals("electrical")) {
+                long durationExp = existingReservation.getDuration();
+                //check every boat to take into account charging time
+                for (Boat boat : existingReservation.getBoats()) {
 
-            for (Trip endedTrip : endedTrips) {
-                long chargingTime = endedTrip.getBoat().getChargingTime();
-                long duration = endedTrip.getDuration();
+                        long chargingTime = boat.getChargingTime();
 
-                LocalDateTime endedTripAvailableDateTime = LocalDateTime.of(endedTrip.getStartDate(), endedTrip.getStartTime())
-                                                                                        .plusMinutes(duration + chargingTime);
+                        LocalDateTime matchedReservationAvailableDateTime = LocalDateTime.of(existingReservation.getStartDate(), existingReservation.getStartTime())
+                                .plusMinutes(durationExp + chargingTime + 60);
 
-                if (endedTripAvailableDateTime.isAfter(LocalDateTime.now())) {
-                    boatsNotInUse.remove(endedTrip.getBoat());
+                        if (matchedReservationAvailableDateTime.isAfter(LocalDateTime.now())) {
+                            boatsNotInUse.remove(boat);
+                        }
+                }
+            }else{
+                LocalDateTime existingResStartDateTime = LocalDateTime.of(existingReservation.getStartDate(), existingReservation.getStartTime());
+                LocalDateTime existingResAvailableDateTime = existingResStartDateTime.plusMinutes(existingReservation.getDuration() + 60);
+
+                if (existingResAvailableDateTime.isAfter(LocalDateTime.now())) {
+                    boatsNotInUse.removeAll(existingReservation.getBoats());
                 }
             }
         }
+        return findSuitableBoatNumbers(boatsNotInUse, numOfPersons);
+    }
+
+    @GetMapping("/suitableBoatsforReservation")
+    public List<String> getSuitableBoatsForReservation(@RequestParam("numOfPersons") Integer numOfPersons,
+                                                       @RequestParam("boatType") String boatType,
+                                                       @RequestParam("reservationStartDateTime")  @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm") LocalDateTime reservationStartDateTime,
+                                                       @RequestParam("duration") Integer duration) {
+
+        /*check if the reservation date time is not before current time plus 1 hour
+        it is assumed that a reservation is only possible at least 1 hour before */
+        if(reservationStartDateTime.isBefore(LocalDateTime.now().plusMinutes(60))){
+            return null;
+        }
+
+        /*An empty list created to store all suitable boats.
+         Step by step boats that are not suitable will be removed from this list.
+         At the end the required amount of boats will be chosen from this list.*/
+        List<Boat> boatsNotInUse = new ArrayList<>();
+
+        /*find all trips still ongoing if the reservation date is today to check boats in use
+        load all required type of boats not blocked ordered by number of seats in ascending order
+        to a list then remove the boats inside ongoingTrips and reservations to find boats not in use.
+        In the end fill the main boatsNotInUse list with updated suitable boats*/
+        List<Boat> boatsNotInUsed = new ArrayList<>(boatRepository.findAllByTypeAndBlockStatusOrderByNumberOfSeatsAsc(boatType, "not blocked"));
+        LocalDate today = LocalDate.now();
+
+        if(reservationStartDateTime.toLocalDate().isEqual(today)) {
+            boatsNotInUse.addAll(findSuitableBoatsOfToday(boatType, boatsNotInUsed, today));
+        }else{
+            boatsNotInUse.addAll(boatsNotInUsed);
+        }
+
+        /*Check the existing reservations to find out suitable boats.
+         Firstly find the boats which are already reserved for the same day.
+         Then check the availability according to time and restrictions.
+         */
+        List<Reservation> existingReservations = reservationRepository.findAllByBoatsTypeAndStartDate(boatType, reservationStartDateTime.toLocalDate());
+
+        LocalDateTime reservationEndDateTime = reservationStartDateTime.plusMinutes(duration);
+
+        for (Reservation existingReservation : existingReservations) {
+
+            if (boatType.equals("electrical")) {
+                long durationExp = existingReservation.getDuration();
+                //check every boat to take into account charging time. A reservation can have multiple boats
+                for (Boat boat : existingReservation.getBoats()) {
+
+                    long chargingTime = boat.getChargingTime();
+
+                    LocalDateTime existingReservationStartDateTime = LocalDateTime.of(existingReservation.getStartDate(), existingReservation.getStartTime());
+                    LocalDateTime existingReservationAvailableEndDateTime = existingReservationStartDateTime.plusMinutes(durationExp + chargingTime + 60);
+
+                    if (!(((reservationStartDateTime.isBefore(existingReservationStartDateTime)) && (reservationEndDateTime.plusMinutes(chargingTime + 60).isBefore(existingReservationStartDateTime))) ||
+                            (reservationStartDateTime.isAfter(existingReservationAvailableEndDateTime) && reservationEndDateTime.isAfter(existingReservationAvailableEndDateTime))))
+                    {
+                        boatsNotInUse.removeAll(existingReservation.getBoats());
+                    }
+                }
+            }else{
+                LocalDateTime existingReservationStartDateTime = LocalDateTime.of(existingReservation.getStartDate(), existingReservation.getStartTime());
+                LocalDateTime existingReservationAvailableEndDateTime = existingReservationStartDateTime.plusMinutes(existingReservation.getDuration() + 60);
+
+                if (!(((reservationStartDateTime.isBefore(existingReservationStartDateTime)) && (reservationEndDateTime.plusMinutes(60).isBefore(existingReservationStartDateTime))) ||
+                        (reservationStartDateTime.isAfter(existingReservationAvailableEndDateTime) && reservationEndDateTime.isAfter(existingReservationAvailableEndDateTime))))
+                {
+                    boatsNotInUse.removeAll(existingReservation.getBoats());
+                }
+            }
+        }
+        return findSuitableBoatNumbers(boatsNotInUse, numOfPersons);
+    }
+
+    /**
+     * This method returns the suitable boat numbers required for a trip or reservation.
+     * Chooses the ones which are used least to assure evenly distribution.
+     * @param boatsNotInUse all the suitable boats
+     * @param numOfPersons the number of persons
+     * @return suitable boat numbers
+     */
+    private List<String> findSuitableBoatNumbers(List<Boat> boatsNotInUse, Integer numOfPersons) {
         /* In order to evenly distribute rentals
          over boats firstly the matched number of seats
          according to number of persons searched.Checked
          if exact match or nearest match available. */
-        int matchedNumberOfSeats = 0;
-        for (Boat boat: boatsNotInUse) {
-            if (boat.getNumberOfSeats() >= numOfPersons) {
-                matchedNumberOfSeats = boat.getNumberOfSeats();
-                break; /*because the boats are ordered by number of seats
-                        in ascending. So the first match is the nearest*/
+        List<String> suitableBoatNumbers =new ArrayList<>();
+        List<Integer> matchedNumberOfSeats = new ArrayList<>();
+        List<Boat> suitableBoats = new ArrayList<>(boatsNotInUse);
+        int matchedNumberOfSeat = 0;
+        int persons = numOfPersons;
+        int currentMatchedNumberOfSeat;
+
+        Matched:
+        do {
+            currentMatchedNumberOfSeat = 0;
+            for (Boat boat : suitableBoats) {
+
+                if (boat.getNumberOfSeats() >= persons) {/*because the boats are ordered by number of seats
+                                                            in ascending. So the first match is the nearest*/
+                    matchedNumberOfSeats.add(boat.getNumberOfSeats());
+                    suitableBoats.remove(boat);
+                    matchedNumberOfSeat += persons;
+                    currentMatchedNumberOfSeat = persons;
+                    if (matchedNumberOfSeat >= numOfPersons) {
+                        break Matched;
+                    }else{
+                        persons = numOfPersons - currentMatchedNumberOfSeat +1;
+                        break ;
+                    }
+                }
+
             }
+            persons--;
+
+        } while(persons > 0 && suitableBoats.size() > 0);
+
+        if (matchedNumberOfSeat < numOfPersons){
+            return null;
         }
+
         /*Secondly if there are multiple candidate boats
          available the one which has executed minimum amount
          of trips has been chosen for evenly distribution.
          matchedNumberOfSeats matched with a boat inside boatsNotInUse
          list so it is expected at least one exact match below*/
-        int minCount = 1000000000;
-        for (Boat boatSuits: boatsNotInUse) {
-            if (boatSuits.getNumberOfSeats() == matchedNumberOfSeats) {
-                if(boatSuits.getTrips().size() < minCount) {
-                    suitableBoatNumber = boatSuits.getBoatNumber();
-                    minCount = boatSuits.getTrips().size();
+        for(Integer matchedNumOfSeat : matchedNumberOfSeats) {
+            int minCount = 1000000000;
+            String  suitableBoatNumber = "";
+            int index = 0;
+            for (int i =0; i < boatsNotInUse.size(); i++) {
+                if (boatsNotInUse.get(i).getNumberOfSeats().equals(matchedNumOfSeat)) {
+                    if (boatsNotInUse.get(i).getTrips().size() < minCount) {
+                        suitableBoatNumber = boatsNotInUse.get(i).getBoatNumber();
+                        index = i;
+                        minCount = boatsNotInUse.get(i).getTrips().size();
+                    }
+                }
+            }
+            suitableBoatNumbers.add(suitableBoatNumber);
+            boatsNotInUse.remove(index);
+        }
+        return suitableBoatNumbers;
+    }
+
+    /**
+     * This method returns the suitable boats that can be used for the current day
+     * @param boatType boat type
+     * @param boatsNotInUse a candidate list of boats to be checked
+     * @param today current day
+     * @return suitable boats for current day
+     */
+    private List<Boat> findSuitableBoatsOfToday(String boatType, List<Boat> boatsNotInUse, LocalDate today) {
+        List<Trip> ongoingTrips = tripRepository.findAllByBoatsTypeAndStatus(boatType, "ongoing..");
+
+        for (Trip ongoingTrip : ongoingTrips) {
+            boatsNotInUse.removeAll(ongoingTrip.getBoats());
+        }
+
+            /*for electrical boats checks the end time of ended trips
+             taking into account charging time for suitability*/
+        if (boatType.equals("electrical")) {
+            //find all trips ended today for electrical boats
+            List<Trip> endedTrips = tripRepository.findAllByEndDateAndBoatsTypeAndStatus(today, boatType, "ended");
+
+            for (Trip endedTrip : endedTrips) {
+                long durationExp = endedTrip.getDuration();
+                //check every boat to take into account charging time
+                for (Boat boat : endedTrip.getBoats()) {
+
+                    long chargingTime = boat.getChargingTime();
+
+                    LocalDateTime endedTripAvailableDateTime = LocalDateTime.of(endedTrip.getStartDate(), endedTrip.getStartTime())
+                            .plusMinutes(durationExp + chargingTime);
+
+                    if (endedTripAvailableDateTime.isAfter(LocalDateTime.now())) {
+                        boatsNotInUse.remove(boat);
+                    }
                 }
             }
         }
-       return suitableBoatNumber;
+        return boatsNotInUse;
+    }
+
+    /**
+     * This method blocks or unblocks a boat depending on request.
+     * @param boatNumber boat number
+     * @param blockStatus requested block action("blocked" or "not blocked"
+     * @return returns a confirmation message
+     */
+    @PutMapping("/blocked")
+    public String blockBoat(@RequestParam("boatNumber") String boatNumber, @RequestParam("blockStatus") String blockStatus){
+
+        Boat boat = boatRepository.findOneByBoatNumberIgnoreCase(boatNumber);
+
+        if(boat == null) {
+            return "The boat number is not exists. Please set another number.";
+        }
+
+        if(boat.getBlockStatus().equals(blockStatus)){
+            return "The boat is already " + blockStatus + ". Try another boat number! ";
+        }else {
+            boat.setBlockStatus(blockStatus);
+            boatRepository.save(boat);
+        }
+
+        return "The boat is " + blockStatus;
     }
 }

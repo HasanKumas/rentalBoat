@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -36,42 +35,40 @@ public class TripController {
         tripRepository.deleteById(id);
     }
 
-    /**To start set the the initial values by creating a trip
-     * for the requested boat.
+    /**To start set the the initial values by creating a new trip
+     * for the requested boat. start date and time is set to current
+     * date and time in constructor. Status set to "ongoing" in constructor as well.
      * Add the requested guest and the suitable boat to the trip.
-     * @param suitableBoatNumber 1st parameter
+     * @param suitableBoatNumbers 1st parameter
      * @param numOfPersons 2nd parameter
      * @param guestId 3rd parameter
      * @return a confirmation message
      */
     @PostMapping
-    public String startTrip(@RequestParam("suitableBoatNumber") String suitableBoatNumber, @RequestParam("numOfPersons") Integer numOfPersons, @RequestParam("guestId") Long guestId) {
+    public String startTrip(@RequestParam("suitableBoatNumber") List<String> suitableBoatNumbers, @RequestParam("numOfPersons") Integer numOfPersons, @RequestParam("guestId") Long guestId) {
         Trip trip = new Trip();
         Guest guest = guestRepository.getOne(guestId);
-        Boat suitableBoat = boatRepository.findOneByBoatNumberIgnoreCase(suitableBoatNumber);
+        List<Boat> suitableBoats = boatRepository.findAllByBoatNumberInIgnoreCase(suitableBoatNumbers);
 
          /*set the price of the trip to the max of minPrice
-          * and actualPrice of Boat. This price will be used to calculate total price
+          * and actualPrice of Boat. Check all the suitable
+          * boats and sum their prices to find the trip price
+          * This price will be used to calculate total price
           */
-        if(suitableBoat.getMinPrice() > suitableBoat.getActualPrice()){
-            trip.setPrice(suitableBoat.getMinPrice());
-        }else{
-            trip.setPrice(suitableBoat.getActualPrice());
-        }
-        trip.setTotalPrice(0.00);
+         Double tripPrice = 0.00;
+         for (Boat suitableBoat : suitableBoats) {
+             if (suitableBoat.getMinPrice() > suitableBoat.getActualPrice()) {
+                 tripPrice += suitableBoat.getMinPrice();
+             } else {
+                 tripPrice += suitableBoat.getActualPrice();
+             }
+         }
+        trip.setPrice(tripPrice);
+
         trip.setNumberOfPersons(numOfPersons);
 
-        //set current date and time for start date and time
-        LocalDate today = LocalDate.now();
-        trip.setStartDate(today);
-        LocalTime startTime = LocalTime.now();
-        trip.setStartTime(startTime);
-
-        //set the trip status to "ongoing"
-        trip.setStatus("ongoing..");
-
         //add suitable boat and guest to the trip
-        trip.setBoat(suitableBoat);
+        trip.setBoats(suitableBoats);
         trip.setGuest(guest);
 
         tripRepository.save(trip);

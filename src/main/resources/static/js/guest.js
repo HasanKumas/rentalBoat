@@ -51,6 +51,12 @@ function getGuests() {
     });
 
     $("#saveCrtModalBtn").click(function () {
+        var guestName = $("#guestNameInput").val();
+        var phoneNumber = $("#phoneNumberInput").val();
+        if (!(guestName && phoneNumber)) {
+            alert('The guest name and phone number should be set..');
+            return;
+        }
         postGuest();
         $("#exampleModal").modal("hide");
     });
@@ -91,6 +97,12 @@ function getGuests() {
             guestId = data1.id;
         });
     $("#saveEdtModalBtn").click(function () {
+        var guestName = $("#guestNameInput").val();
+        var phoneNumber = $("#phoneNumberInput").val();
+        if (!(guestName && phoneNumber)) {
+            alert('The guest name and phone number should be set..');
+            return;
+        }
         changeGuest(guestId);
         $("#exampleModal").modal("hide");
     });

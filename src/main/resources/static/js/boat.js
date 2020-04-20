@@ -20,6 +20,7 @@ function getBoats() {
                                 'numberOfSeats': json[i].numberOfSeats,
                                 'minPrice': json[i].minPrice.toFixed(2),
                                 'actualPrice': json[i].actualPrice.toFixed(2),
+                                'blockStatus':json[i].blockStatus,
                                 'deleteBtn': "<button class='btn btn-danger deleteButton' boatId=' " + json[i].id + " ' >delete</button>",
                                 'editBtn': "<button class='btn btn-primary editBtn' boatId=' " + json[i].id + " '> edit </button>"
                             });
@@ -34,6 +35,7 @@ function getBoats() {
             { data: "numberOfSeats" },
             { data: "minPrice" },
             { data: "actualPrice" },
+            { data: "blockStatus" },
             { data: "deleteBtn" },
             { data: "editBtn" }
         ],
@@ -50,11 +52,28 @@ function getBoats() {
                     $("#saveEdtModalBtn").hide();
                     $("#saveCrtModalBtn").show();
                 },
+            },
+            {
+                text: "Block a boat",
+                action: function (e, dt, node, config) {
+                    blockBoat();
+                }
+            },
+            {
+                text: "Unblock a boat",
+                action: function (e, dt, node, config) {
+                    unBlockBoat();
+                }
             }
         ]
     });
 
     $("#saveCrtModalBtn").click(function () {
+        var boatNumber = $("#boatNumberInput").val();
+        if (!boatNumber) {
+            alert('The boat number should be set..');
+            return;
+        }
         postBoat();
         $("#exampleModal").modal("hide");
     });
@@ -99,6 +118,11 @@ function getBoats() {
             boatId = data1.id;
         });
     $("#saveEdtModalBtn").click(function () {
+        var boatNumber = $("#boatNumberInput").val();
+        if (!boatNumber) {
+            alert('The boat number should be set..');
+            return;
+        }
         changeBoat(boatId);
         $("#exampleModal").modal("hide");
     });
@@ -113,7 +137,6 @@ function postBoat() {
         minPrice: Number($("#boatMinPriceInput").val()),
         actualPrice: Number($("#boatActPriceInput").val())
     };
-console.log($("#boatTypeInput").val());
     var jsonObject = JSON.stringify(boat);
 
     $.ajax({
@@ -167,8 +190,8 @@ function changeBoat(boatId) {
         type: "PUT",
         contentType: "application/json",
         data: jsonObject,
-        success: function () {
-            alert("The boat has been modified!");
+        success: function (message) {
+            alert(message);
             boatTable.ajax.reload();
         },
         error: function () {
@@ -176,6 +199,69 @@ function changeBoat(boatId) {
         },
     });
 }
+function blockBoat(){
+    $("#formInputBlock").show();
+    $("#blockBtn").html("Block");
+    $("#blockBtn").click(function () {
+        $("#formInputBlock").hide();
+        $("#blockBtn").off();
+        $("#blockCancelBtn").off();
+        $.ajax({
+            url: "api/boats/blocked/?boatNumber=" + document.getElementById("blockNumberInput").value +
+                                    "&blockStatus=" + "blocked",
+            type: "PUT",
+            contentType: "application/json",
+            success: function (message) {
+                alert(message);
+                boatTable.ajax.reload();
+                $("#blockNumberInput").val(" ");
+            },
+            error: function () {
+                alert("try again");
+            },
+        });
+
+    });
+    $("#blockCancelBtn").click(function () {
+        $("#formInputBlock").hide();
+        $("#blockBtn").off();
+        $("#blockCancelBtn").off();
+        $("#blockNumberInput").val(" ");
+    });
+}
+
+function unBlockBoat(){
+    $("#formInputBlock").show();
+    $("#blockBtn").html("Unblock");
+    $("#blockBtn").click(function () {
+        $("#formInputBlock").hide();
+        $("#blockBtn").off();
+        $("#blockCancelBtn").off();
+        $.ajax({
+            url: "api/boats/blocked/?boatNumber=" + document.getElementById("blockNumberInput").value +
+                                    "&blockStatus=" + "not blocked",
+            type: "PUT",
+            contentType: "application/json",
+            success: function (message) {
+                alert(message);
+                $("#blockNumberInput").val(" ");
+                boatTable.ajax.reload();
+            },
+            error: function () {
+                alert("try again");
+            },
+        });
+
+    });
+    $("#blockCancelBtn").click(function () {
+        $("#formInputBlock").hide();
+        $("#blockBtn").off();
+        $("#blockCancelBtn").off();
+        $("#blockNumberInput").val(" ");
+
+    });
+}
+
 $(document).ready(function () {
     getBoats();
 });

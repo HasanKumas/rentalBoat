@@ -46,14 +46,21 @@ public class OverviewController {
 
         //set the income and totalTime for current day per boatView
         for (BoatView boatView : boatViews){
-            Double income = 0.00;
+            double income = 0.00;
+            double pricePerBoat;
             Integer duration = 0;
+            Integer durationPerBoat;
             for(Trip trip : endedTrips) {
-                if(trip.getBoat().getBoatNumber().equals(boatView.getBoatNumber())) {
-                    income += trip.getTotalPrice();
-                    duration += trip.getDuration();
-                    boatView.setIncome(income);
-                    boatView.setTotalTime(duration);
+                pricePerBoat = trip.getTotalPrice()/trip.getBoats().size();
+                durationPerBoat = (trip.getDuration());
+                for(Boat boat : trip.getBoats()) {
+                    if (boat.getBoatNumber().equals(boatView.getBoatNumber())) {
+                        income += pricePerBoat;
+                        duration += durationPerBoat;
+                        boatView.setIncome(income);
+                        boatView.setTotalTime(duration);
+                        break;
+                    }
                 }
             }
         }
@@ -71,24 +78,27 @@ public class OverviewController {
         Integer numberOfOngoingTrips = ongoingTrips.size();
         Integer numberOfEndedTrips = endedTrips.size();
 
+        tripView.setNumberOfTripsOngoing(numberOfOngoingTrips);
+        tripView.setNumberOfTripsEnded(numberOfEndedTrips);
+
         Double totalDuration = 0.00;
         Double totalPrice = 0.00;
+        Integer numOfUsedBoats = 0;
 
         for(Trip trip : endedTrips){
             totalDuration += trip.getDuration();
             totalPrice += trip.getTotalPrice();
+            numOfUsedBoats += trip.getBoats().size();
         }
+        tripView.setTotalIncome(totalPrice);
+        tripView.setNumberOfUsedBoats(numOfUsedBoats);
 
-        tripView.setNumberOfTripsOngoing(numberOfOngoingTrips);
-        tripView.setNumberOfTripsEnded(numberOfEndedTrips);
         //to avoid (x/0) exception
         if(numberOfEndedTrips > 0) {
             tripView.setAverageDuration(totalDuration/numberOfEndedTrips);
         }else {
             tripView.setAverageDuration(0.00);
         }
-        tripView.setTotalIncome(totalPrice);
-        tripView.setNumberOfUsedBoats(numberOfEndedTrips+numberOfOngoingTrips);
 
         return tripView;
     }
