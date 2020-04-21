@@ -214,7 +214,7 @@ function blockBoat(){
             success: function (message) {
                 alert(message);
                 boatTable.ajax.reload();
-                $("#blockNumberInput").val(" ");
+                $("#blockNumberInput").val("");
             },
             error: function () {
                 alert("try again");
@@ -226,7 +226,7 @@ function blockBoat(){
         $("#formInputBlock").hide();
         $("#blockBtn").off();
         $("#blockCancelBtn").off();
-        $("#blockNumberInput").val(" ");
+        $("#blockNumberInput").val("");
     });
 }
 
@@ -244,7 +244,7 @@ function unBlockBoat(){
             contentType: "application/json",
             success: function (message) {
                 alert(message);
-                $("#blockNumberInput").val(" ");
+                $("#blockNumberInput").val("");
                 boatTable.ajax.reload();
             },
             error: function () {
@@ -257,7 +257,7 @@ function unBlockBoat(){
         $("#formInputBlock").hide();
         $("#blockBtn").off();
         $("#blockCancelBtn").off();
-        $("#blockNumberInput").val(" ");
+        $("#blockNumberInput").val("");
 
     });
 }

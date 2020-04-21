@@ -64,10 +64,7 @@ public class BoatController {
      */
     @PutMapping("/{id}")
     public String updateBoat(@PathVariable("id") Long id,  @RequestBody Boat boat){
-        Boat existingBoat = boatRepository.findOneByBoatNumberIgnoreCase(boat.getBoatNumber());
-        if(existingBoat != null) {
-            return "The boat number "+ boat.getBoatNumber() + " is already exists. Please set another number.";
-        }
+
         boat.setId(id);
         boatRepository.save(boat);
         return "The boat has been modified..";
