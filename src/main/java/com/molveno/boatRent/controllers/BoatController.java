@@ -244,7 +244,6 @@ public class BoatController {
 
         Matched:
         do {
-            currentMatchedNumberOfSeat = 0;
             for (Boat boat : suitableBoats) {
 
                 if (boat.getNumberOfSeats() >= persons) {/*because the boats are ordered by number of seats

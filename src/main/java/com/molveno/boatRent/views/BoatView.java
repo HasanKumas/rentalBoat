@@ -1,20 +1,13 @@
 package com.molveno.boatRent.views;
 
 public class BoatView {
-//    private Long id;
+
     private  String boatNumber;
     private String type;
     private Integer numberOfSeats;
     private Integer totalTime;
     private Double income;
 
-//    public Long getId() {
-//        return id;
-//    }
-//
-//    public void setId(Long id) {
-//        this.id = id;
-//    }
 
     public String getBoatNumber() {
         return boatNumber;

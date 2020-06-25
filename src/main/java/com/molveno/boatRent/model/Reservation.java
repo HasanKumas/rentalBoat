@@ -27,7 +27,7 @@ public class Reservation {
     @ManyToMany
     private List<Boat> boats;
     @ManyToOne
-    Guest guest;
+    private Guest guest;
 
     public Long getId() {
         return id;

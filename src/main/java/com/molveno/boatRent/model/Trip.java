@@ -25,9 +25,9 @@ public class Trip {
     private Double totalPrice;
 
     @ManyToMany
-    List<Boat> boats;
+    private List<Boat> boats;
     @ManyToOne
-    Guest guest;
+    private Guest guest;
 
     public Trip() {
         //set the date and time to current when a trip started
